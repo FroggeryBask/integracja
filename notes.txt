@@ -1,0 +1,29 @@
+
+❯ docker build -t user_db .
+❯ docker run --name user_db_c -p 5432:5432 -d user_db
+
+❯ docker build -t user_db_gui .
+❯ docker run --name user_db_gui_c -p 15432:80 -d user_db_gui
+
+## IP POSTGRESDB
+docker inspect userdb_persistence -f "{{json .NetworkSettings.Networks}}"
+
+1. zakomentuj frontend w dockercompose
+2. docker-compose up -d --build
+5. cd stats_front
+6. npm i --legacy-peer-deps
+7. npx auth secret
+8. z docker entrypoint we frontendzie skopiuj te 4 linijki do .env.local
+DATABASE_HOST=localhost
+DATABASE_NAME=userdb
+DATABASE_USER=postgres
+DATABASE_PASSWORD=secret
+9. w miejsce DATABASE_HOST wstaw zamiast userdb wstaw localhost
+10. npm run dev
+
+jesli mam jakies bledy to robie docker logs [i nazwa kontenera]
+
+
+znowu na docker
+1. odkomentowac frontend w docker compose.yml
+2. docker-compose up -d --build

@@ -1,20 +1,19 @@
+#użycie oficalnego obrazu PostgreSQL jako obrazu bazowego
 FROM postgres:latest
 
-# Set environment variables
-ENV POSTGRES_USER=postgres
+# Ustawienie zmiennych środowiskowych dla PostgreSQL
+
+#domyslny użytkownik o nazwie postgres oraz haśle secret
+#nazwa bazy danych, która ma zostać utworzona = userdb
+#port na ktorym bedzie dzialać PostgreSQL = 5432
+ENV POSTGRES_USER=postgres 
 ENV POSTGRES_PASSWORD=secret
 ENV POSTGRES_DB=userdb
 ENV POSTGRES_PORT=5432
-
-# Copy the initialization script
+ 
+# Kopiowanie pliku init.sql do katalogu inicjalizacyjnego PostgreSQL
+# Plik ten zostanie wykonany przy pierwszym uruchomieniu kontenera, aby utworzyć bazę danych i tabele
 COPY init.sql /docker-entrypoint-initdb.d/
 
-# Expose the PostgreSQL port
+#Informacja dla dockera, że kontener nasłuchuje na porcie 5432
 EXPOSE 5432
-
-# This Dockerfile sets up a PostgreSQL database with a user and password.
-# The init.sql script is executed when the container is first run, creating the database and tables.
-# The PostgreSQL server is started with the specified configuration file.
-# The container exposes port 5432 for database connections.
-# The default user is 'postgres' with the password 'secret'.
-# The database name is 'userdb'.

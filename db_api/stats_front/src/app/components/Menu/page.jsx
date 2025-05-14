@@ -46,67 +46,71 @@ const Menu = () => {
                 <ul className="space-y-2">
                     <MenuItem icon={<MdBarChart size={20} />} text="Analiza" href="/home" isActive={pathname === "/home"} />
                     <MenuItem icon={<MdDisplaySettings size={20} />} text="Panel administratora" href="/admin" isActive={pathname === "/admin"} />
-                    <MenuItem icon={<MdFolder size={20} />} text="Surowe Dane" href="/surowedane" isActive={pathname === "/surowedane"} />
+                    <MenuItem icon={<MdFolder size={20} />} text="Surowe Dane" href="/rawdata" isActive={pathname === "/rawdata"} />
                     <MenuItem icon={<MdCode size={20} />} text="API" href="/apibuilder" isActive={pathname === "/apibuilder"} />
                 </ul>
             </nav>
 
-            {/* Profil użytkownika */}
-            {/* Profil użytkownika */}
-            <div className="mt-auto">
-                {/* Opcja wylogowania - pojawia się po kliknięciu */}
-                {showLogout && (
-                    <div
-                        className="flex items-center p-2 rounded-lg hover:bg-red-600 hover:text-white transition cursor-pointer mb-2"
-                        onClick={() => signOut({ callbackUrl: "/" })}
-                    >
-                        <IoMdLogOut className="mr-2" size={18} />
-                        <span>Wyloguj się</span>
-                    </div>
-                )}
 
-                {/* Profil użytkownika */}
-                <div
-                    className="flex items-center p-2 rounded-lg hover:bg-blue-700 hover:text-white transition cursor-pointer"
-                    onClick={() => setShowLogout(!showLogout)}
-                >
-                    {user.avatar ? (
-                        <div className="w-10 h-10 rounded-full overflow-hidden mr-3">
-                            <Image
-                                src={user.avatar}
-                                alt="User avatar"
-                                width={40}
-                                height={40}
-                                className="object-cover"
-                            />
-                        </div>
-                    ) : (
-                        <div className="w-10 h-10 rounded-full bg-gray-700 mr-3 flex items-center justify-center">
-                            <IoMdPerson className="text-white" size={20} />
-                        </div>
-                    )}
-                    <div>
-                        {user.name ? (
-                            <p className="font-medium">{user.name}</p>
-                        ) : (
-                            <p className="font-medium">Nieznany użytkownik</p>
+            {/* Profil użytkownika - pojawia się tylko, jesli jestesmy zalogowani*/}
+            <div className="mt-auto">
+                {session && (
+                    <>
+                        {/* Opcja wylogowania - pojawia się po kliknięciu */}
+                        {showLogout && (
+                            <div
+                                className="flex items-center p-2 rounded-lg hover:bg-red-600 hover:text-white transition cursor-pointer mb-2"
+                                  onClick={() => signOut({ callbackUrl: "/" }).then(() => window.location.reload())} // Wylogowanie i odświeżenie strony, zeby nie bylo problemow z hydration
+                            >
+                                <IoMdLogOut className="mr-2" size={18} />
+                                <span>Wyloguj się</span>
+                            </div>
                         )}
-                        {user.role ? (
-                            user.role === "admin" ? (
-                                <p className="text-sm text-red-300">Administrator</p>
+
+                        {/* Profil użytkownika */}
+                        <div
+                            className="flex items-center p-2 rounded-lg hover:bg-blue-700 hover:text-white transition cursor-pointer"
+                            onClick={() => setShowLogout(!showLogout)}
+                        >
+                            {user.avatar ? (
+                                <div className="w-10 h-10 rounded-full overflow-hidden mr-3">
+                                    <Image
+                                        src={user.avatar}
+                                        alt="User avatar"
+                                        width={40}
+                                        height={40}
+                                        className="object-cover"
+                                    />
+                                </div>
                             ) : (
-                                <p className="text-sm text-gray-500">Użytkownik</p>
-                            )
-                        ) : (
-                            <p className="text-sm text-gray-500">Brak roli</p>
-                        )}
-                        {user.email ? (
-                            <p className="text-sm text-gray-500">{user.email}</p>
-                        ) : (
-                            <p className="text-sm text-gray-500">Brak adresu e-mail</p>
-                        )}
-                    </div>
-                </div>
+                                <div className="w-10 h-10 rounded-full bg-gray-700 mr-3 flex items-center justify-center">
+                                    <IoMdPerson className="text-white" size={20} />
+                                </div>
+                            )}
+                            <div>
+                                {user.name ? (
+                                    <p className="font-medium">{user.name}</p>
+                                ) : (
+                                    <p className="font-medium">Nieznany użytkownik</p>
+                                )}
+                                {user.role ? (
+                                    user.role === "admin" ? (
+                                        <p className="text-sm text-red-300">Administrator</p>
+                                    ) : (
+                                        <p className="text-sm text-gray-500">Użytkownik</p>
+                                    )
+                                ) : (
+                                    <p className="text-sm text-gray-500">Brak roli</p>
+                                )}
+                                {user.email ? (
+                                    <p className="text-sm text-gray-500">{user.email}</p>
+                                ) : (
+                                    <p className="text-sm text-gray-500">Brak adresu e-mail</p>
+                                )}
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );

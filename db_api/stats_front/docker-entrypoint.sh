@@ -10,7 +10,7 @@ DATABASE_HOST=userdb
 DATABASE_NAME=userdb
 DATABASE_USER=postgres
 DATABASE_PASSWORD=secret
-EOF
+EOF 
 
 # Run the main command
 exec "$@"

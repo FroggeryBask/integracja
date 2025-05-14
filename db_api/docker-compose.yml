@@ -1,79 +1,86 @@
+# Definicja usług (kontenerów) wchodzących w skład aplikacji
   services:
+   # Usługa MongoDB - baza danych NoSQL
     mongodb:
       build:
-        context: ./mongo_database
-        dockerfile: Dockerfile
-      container_name: statsdb_no_persistence
+        context: ./mongo_database # Ścieżka do folderu z Dockerfile
+        dockerfile: Dockerfile #nazwa pliku Dockerfile
+      container_name: statsdb_no_persistence #nazwa kontenera
       ports:
-        - "27017:27017"
-      restart: unless-stopped
-      healthcheck:
-        test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-        interval: 10s
-        timeout: 5s
-        retries: 5
+        - "27017:27017" # Mapowanie portu hosta na port kontenera (host:kontener)
+      restart: unless-stopped # Automatyczne restartowanie kontenera chyba że został zatrzymany ręcznie
+      healthcheck: # Definicja healthcheck do monitorowania stanu usługi
+        test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"] # Komenda sprawdzająca czy baza działa
+        interval: 10s #Co ile sekund wykoywać test
+        timeout: 5s #Maksymalny czas oczekiwania na odpowiedź
+        retries: 5 #Liczba prób przed uznaniem kontenera za niedziałający
 
+# Usługa API - backend aplikacji
     api:
       build:
-        context: ./dataAPI
-        dockerfile: Dockerfile
-      container_name: data_api
-      depends_on:
+        context: ./dataAPI # Ścieżka do folderu z Dockerfile
+        dockerfile: Dockerfile #nazwa pliku Dockerfile
+      container_name: data_api #nazwa kontenera
+      depends_on: # Zależności od innych usług
         mongodb:
-          condition: service_healthy
+          condition: service_healthy #Uruchomienie kontenera tylko gdy mongodb jest zdrowy
       ports:
-        - "3018:3018"
-      healthcheck:
-        test: ["CMD", "curl", "-f", "http://localhost:3018/"]
-        interval: 10s
-        timeout: 10s
+        - "3018:3018" #Mapowanie portu hosta na port kontenera (host:kontener)
+      healthcheck: 
+        test: ["CMD", "curl", "-f", "http://localhost:3018/"] 
+        interval: 10s 
+        timeout: 10s 
         retries: 5
 
-    userdb:
-      build:
-        context: ./user_db
-        dockerfile: Dockerfile
-      container_name: userdb_persistence
+# Usługa PostgreSQL - baza danych SQL
+    userdb: 
+      build: 
+        context: ./user_db # Ścieżka do folderu z Dockerfile
+        dockerfile: Dockerfile #nazwa pliku Dockerfile
+      container_name: userdb_persistence #nazwa kontenera
       ports:
-        - "5432:5432"
-      volumes:
-        - userdb_data:/var/lib/postgresql/data
+        - "5432:5432" #Mapowanie portu host:kontener
+      volumes: # Mapowanie wolumenu do przechowywania danych
+        - userdb_data:/var/lib/postgresql/data 
       healthcheck:
-        test: ["CMD", "pg_isready", "-U", "postgres"]
+        test: ["CMD", "pg_isready", "-U", "postgres"] # Sprawdzenie czy baza jest gotowa
         interval: 10s
         timeout: 5s
         retries: 5
 
+# Interfejs graficzny do bazy danych użytkowników
     user_db_gui:
       build:
-        context: ./user_db_gui
-        dockerfile: Dockerfile
-      container_name: userdb_gui
-      depends_on:
+        context: ./user_db_gui # Ścieżka do folderu z Dockerfile
+        dockerfile: Dockerfile #nazwa pliku Dockerfile
+      container_name: userdb_gui #nazwa kontenera
+      depends_on: # Zależności od innych usług
         userdb:
-          condition: service_healthy
+          condition: service_healthy #Uruchomienie kontenera tylko gdy userdb jest zdrowy
       ports:
-        - "15432:80"
-      restart: unless-stopped
+        - "15432:80" #Mapowanie portu host:kontener
+      restart: unless-stopped  # Automatyczne restartowanie kontenera chyba że został zatrzymany ręcznie
       healthcheck:
-        test: ["CMD", "curl", "-f", "http://localhost:15432/"]
+        test: ["CMD", "curl", "-f", "http://localhost:15432/"] # Sprawdzenie czy GUI działa
         interval: 10s
         timeout: 5s
         retries: 5
 
-    frontend:
-      build:
-        context: ./stats_front
-        dockerfile: Dockerfile
+# Usługa frontendowa - interfejs użytkownika
+    # frontend:
+    #   build:
+    #     context: ./stats_front # Ścieżka do folderu z Dockerfile
+    #     dockerfile: Dockerfile #nazwa pliku Dockerfile
       
-      container_name: stats_frontend
-      ports:
-        - "3000:3000"
-      depends_on:
-        api:
-          condition: service_healthy
-        userdb:
-          condition: service_healthy
+    #   container_name: stats_frontend
+    #   ports:
+    #     - "3000:3000" #Mapowanie portu host:kontener
+    #   depends_on: # Zależności od innych usług
+    #     api:
+    #       condition: service_healthy #Uruchomienie kontenera tylko gdy api jest zdrowe
+    #     userdb:
+    #       condition: service_healthy #Uruchomienie kontenera tylko gdy userdb jest zdrowe
 
+# Definicja woluminów używanych przez usługi
   volumes:
     userdb_data:

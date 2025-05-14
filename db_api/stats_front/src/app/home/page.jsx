@@ -22,7 +22,6 @@ export default function Home() {
     redirect('/login?error=SessionRequired');
   }
 
-
   const handleApplyFilters = (appliedFilters) => {
     setFilters(appliedFilters);
   };
