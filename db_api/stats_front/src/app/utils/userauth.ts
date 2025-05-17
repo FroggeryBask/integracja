@@ -10,12 +10,16 @@ const pool = new Pool({ // Reuse or create a new pool instance
   // ... other pool options
 });
 
-export const getUserFromDb = async (email: string) => {
+export const getUserFromDb = async (email: string, client?: any) => {
   if (!email) { // Password hash comparison is tricky here, better to do it in authorize
     throw new Error("Email is required");
   }
 
-  const client = await pool.connect();
+   // Use the provided client or get a new one
+  const shouldRelease = !client;
+  if (!client) {
+    client = await pool.connect();
+  }
   try {
     // Make sure your 'users' table has 'id', 'email', 'password', 'name' (or 'username'), 'role'
     const result = await client.query('SELECT id, email, password, name, role FROM users WHERE email = $1', [email]);

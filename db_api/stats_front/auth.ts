@@ -26,7 +26,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials) => {
+        const client = await pool.connect(); // Connect to the database
         try {
+           await client.query('BEGIN'); // Start a transaction
           if (!credentials?.email || !credentials?.password) {
             throw new Error("Email and password are required");
           }
@@ -35,10 +37,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const plainPassword = credentials.password as string;
 
           // 1. Fetch user by email from the database
-          const userFromDb = await getUserFromDb(email); // Pass only email
+          const userFromDb = await getUserFromDb(email, client); //pass email and client to the function
 
           if (!userFromDb || !userFromDb.password) {
             console.log("User not found or password not set in DB");
+            await client.query('ROLLBACK'); // Rollback transaction if user not found
             return null; // User not found
           }
 
@@ -47,8 +50,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           if (!passwordsMatch) {
             console.log("Password mismatch");
+            await client.query('ROLLBACK'); // Rollback transaction if password doesn't match
             return null; // Invalid credentials
           }
+
+           await client.query('COMMIT'); // Commit transaction if everything is fine
 
           console.log("User authenticated:", userFromDb.email);
           return { // Return the user object expected by NextAuth
@@ -58,6 +64,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             role: userFromDb.role,
           };
         } catch (error) {
+           await client.query('ROLLBACK').catch(e => console.error("Rollback error:", e)); // Rollback transaction on error
           console.error("Authorization error:", error);
           return null; // Return null to indicate failure
         }
