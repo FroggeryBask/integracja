@@ -1,5 +1,5 @@
 #Użycie oficjalnego obrazu Node.js w wersji 18 jako podstawy kontenera
-FROM node:18
+FROM node:latest
 
 # Ustawienie katalogu roboczego wewnątrz kontenera
 WORKDIR /usr/src/app
@@ -31,4 +31,3 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 
 #Uruchomienie komendy terminalowej "npm run dev" do uruchomienia aplikacji
 CMD ["npm", "run", "dev"]
-

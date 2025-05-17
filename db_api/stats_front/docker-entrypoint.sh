@@ -1,16 +1,17 @@
 #!/bin/sh
 
-# First generate the auth secret (creates .env.local with AUTH_SECRET)
-npx auth secret
+echo "Running entrypoint..."  
 
-# Then append database config to the existing .env.local
+npx auth secret
+echo "auth secret command finished"
+
 cat <<EOF >> .env.local
 databaseconfig
 DATABASE_HOST=userdb
 DATABASE_NAME=userdb
 DATABASE_USER=postgres
 DATABASE_PASSWORD=secret
-EOF 
+EOF
 
-# Run the main command
+echo "Database config appended"
 exec "$@"
